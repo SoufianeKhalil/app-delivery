@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import Layout from '../components/Layout'
 import api from '../utils/api'
 
 function Dashboard() {
@@ -24,9 +23,7 @@ function Dashboard() {
 
   if (isLoading) {
     return (
-      <Layout>
-        <div>Chargement...</div>
-      </Layout>
+      <div>Chargement...</div>
     )
   }
 
@@ -35,7 +32,7 @@ function Dashboard() {
   const totalProducts = stats?.products.length || 0
 
   return (
-    <Layout>
+    <>
       <h1 style={{ marginBottom: '30px', fontSize: '32px' }}>Tableau de bord</h1>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '40px' }}>
@@ -81,7 +78,7 @@ function Dashboard() {
           </div>
         )}
       </div>
-    </Layout>
+    </>
   )
 }
 

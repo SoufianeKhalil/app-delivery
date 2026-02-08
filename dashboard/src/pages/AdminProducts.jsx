@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import AdminLayout from '../components/AdminLayout'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
 
@@ -87,14 +86,14 @@ export default function AdminProducts() {
 
   if (isLoading) {
     return (
-      <AdminLayout>
+      < >
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>Chargement...</div>
-      </AdminLayout>
+      </ >
     )
   }
 
   return (
-    <AdminLayout>
+    < >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#0f172a', marginBottom: '4px' }}>Produits</h1>
@@ -235,7 +234,7 @@ export default function AdminProducts() {
           </div>
         </Modal>
       )}
-    </AdminLayout>
+    </ >
   )
 }
 

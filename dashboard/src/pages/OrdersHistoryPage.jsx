@@ -5,6 +5,17 @@ import { ordersAPI } from '../utils/apiClient'
 import { useAuth } from '../context/AuthContext'
 import './OrdersHistoryPage.css'
 
+const STATUS_OPTIONS = ['en_attente', 'acceptee', 'refusee', 'en_livraison', 'livree', 'annulee']
+
+const STATUS_LABELS = {
+  'en_attente': 'En attente',
+  'acceptee': 'Acceptée',
+  'refusee': 'Refusée',
+  'en_livraison': 'En livraison',
+  'livree': 'Livrée',
+  'annulee': 'Annulée'
+}
+
 export default function OrdersHistoryPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -24,13 +35,12 @@ export default function OrdersHistoryPage() {
 
   const getStatusBadge = (status) => {
     const statusMap = {
-      'pending': { color: 'warning', label: 'En attente' },
-      'confirmed': { color: 'info', label: 'Confirmée' },
-      'preparing': { color: 'info', label: 'En préparation' },
-      'ready': { color: 'success', label: 'Prête' },
-      'delivering': { color: 'info', label: 'En livraison' },
-      'delivered': { color: 'success', label: 'Livrée' },
-      'cancelled': { color: 'danger', label: 'Annulée' }
+      'en_attente': { color: 'warning', label: 'En attente' },
+      'acceptee': { color: 'info', label: 'Acceptée' },
+      'refusee': { color: 'danger', label: 'Refusée' },
+      'en_livraison': { color: 'info', label: 'En livraison' },
+      'livree': { color: 'success', label: 'Livrée' },
+      'annulee': { color: 'danger', label: 'Annulée' }
     }
     const item = statusMap[status] || { color: 'secondary', label: status }
     return <span className={`badge bg-${item.color}`}>{item.label}</span>
@@ -99,24 +109,38 @@ export default function OrdersHistoryPage() {
           </button>
           <button
             type="button"
-            className={`btn ${statusFilter === 'pending' ? 'btn-warning' : 'btn-outline-warning'}`}
-            onClick={() => setStatusFilter('pending')}
+            className={`btn ${statusFilter === 'en_attente' ? 'btn-warning' : 'btn-outline-warning'}`}
+            onClick={() => setStatusFilter('en_attente')}
           >
             En attente
           </button>
           <button
             type="button"
-            className={`btn ${statusFilter === 'delivered' ? 'btn-success' : 'btn-outline-success'}`}
-            onClick={() => setStatusFilter('delivered')}
+            className={`btn ${statusFilter === 'acceptee' ? 'btn-info' : 'btn-outline-info'}`}
+            onClick={() => setStatusFilter('acceptee')}
           >
-            Livrées
+            Acceptée
           </button>
           <button
             type="button"
-            className={`btn ${statusFilter === 'cancelled' ? 'btn-danger' : 'btn-outline-danger'}`}
-            onClick={() => setStatusFilter('cancelled')}
+            className={`btn ${statusFilter === 'en_livraison' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => setStatusFilter('en_livraison')}
           >
-            Annulées
+            En livraison
+          </button>
+          <button
+            type="button"
+            className={`btn ${statusFilter === 'livree' ? 'btn-success' : 'btn-outline-success'}`}
+            onClick={() => setStatusFilter('livree')}
+          >
+            Livrée
+          </button>
+          <button
+            type="button"
+            className={`btn ${statusFilter === 'annulee' ? 'btn-danger' : 'btn-outline-danger'}`}
+            onClick={() => setStatusFilter('annulee')}
+          >
+            Annulée
           </button>
         </div>
       </div>

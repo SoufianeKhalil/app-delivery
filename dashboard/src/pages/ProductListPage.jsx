@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { productsAPI } from '../utils/apiClient'
 import { useCart } from '../context/CartContext'
+import api from '../utils/api'
 import toast from 'react-hot-toast'
 import './ProductList.css'
 
@@ -11,6 +12,15 @@ export default function ProductListPage() {
   const { addItem } = useCart()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
+
+  // Fetch categories
+  const { data: categoriesData } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await api.get('/products/categories/all')
+      return response.data.categories || []
+    }
+  })
 
   // Fetch products
   const { data: productsData, isLoading, error } = useQuery({
@@ -95,11 +105,11 @@ export default function ProductListPage() {
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
             <option value="">Toutes les catégories</option>
-            <option value="fruits">Fruits</option>
-            <option value="legumes">Légumes</option>
-            <option value="viandes">Viandes</option>
-            <option value="poissons">Poissons</option>
-            <option value="produits-laitiers">Produits laitiers</option>
+            {categoriesData?.map(category => (
+              <option key={category.id} value={category.nom}>
+                {category.nom}
+              </option>
+            ))}
           </select>
         </div>
       </div>

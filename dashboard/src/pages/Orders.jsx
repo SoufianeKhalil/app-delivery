@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import Layout from '../components/Layout'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
+
+const STATUS_OPTIONS = ['en_attente', 'acceptee', 'refusee', 'en_livraison', 'livree', 'annulee']
 
 function Orders() {
   const queryClient = useQueryClient()
@@ -33,6 +34,7 @@ function Orders() {
     const colors = {
       'en_attente': '#f59e0b',
       'acceptee': '#3b82f6',
+      'refusee': '#ef4444',
       'en_livraison': '#8b5cf6',
       'livree': '#10b981',
       'annulee': '#ef4444'
@@ -44,6 +46,7 @@ function Orders() {
     const labels = {
       'en_attente': 'En attente',
       'acceptee': 'Acceptée',
+      'refusee': 'Refusée',
       'en_livraison': 'En livraison',
       'livree': 'Livrée',
       'annulee': 'Annulée'
@@ -53,14 +56,12 @@ function Orders() {
 
   if (isLoading) {
     return (
-      <Layout>
-        <div>Chargement...</div>
-      </Layout>
+      <div>Chargement...</div>
     )
   }
 
   return (
-    <Layout>
+    <>
       <h1 style={{ marginBottom: '30px', fontSize: '32px' }}>Commandes</h1>
       
       <div style={{ backgroundColor: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -142,7 +143,7 @@ function Orders() {
           </tbody>
         </table>
       </div>
-    </Layout>
+    </>
   )
 }
 

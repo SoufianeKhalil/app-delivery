@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { ordersAPI } from '../utils/apiClient'
 import './OrderDetailPage.css'
 
+const STATUS_OPTIONS = ['en_attente', 'acceptee', 'refusee', 'en_livraison', 'livree', 'annulee']
+
 export default function OrderDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -17,37 +19,33 @@ export default function OrderDetailPage() {
 
   const getStatusColor = (status) => {
     const colors = {
-      'pending': 'warning',
-      'confirmed': 'info',
-      'preparing': 'info',
-      'ready': 'success',
-      'delivering': 'info',
-      'delivered': 'success',
-      'cancelled': 'danger'
+      'en_attente': 'warning',
+      'acceptee': 'info',
+      'refusee': 'danger',
+      'en_livraison': 'info',
+      'livree': 'success',
+      'annulee': 'danger'
     }
     return colors[status] || 'secondary'
   }
 
   const getStatusLabel = (status) => {
     const labels = {
-      'pending': 'En attente',
-      'confirmed': 'Confirmée',
-      'preparing': 'En préparation',
-      'ready': 'Prête',
-      'delivering': 'En livraison',
-      'delivered': 'Livrée',
-      'cancelled': 'Annulée'
+      'en_attente': 'En attente',
+      'acceptee': 'Acceptée',
+      'refusee': 'Refusée',
+      'en_livraison': 'En livraison',
+      'livree': 'Livrée',
+      'annulee': 'Annulée'
     }
     return labels[status] || status
   }
 
   const timeline = [
-    { status: 'pending', label: 'Commande créée', icon: 'check-circle' },
-    { status: 'confirmed', label: 'Confirmée', icon: 'check-circle' },
-    { status: 'preparing', label: 'En préparation', icon: 'bag-check' },
-    { status: 'ready', label: 'Prête', icon: 'boxes' },
-    { status: 'delivering', label: 'En livraison', icon: 'truck' },
-    { status: 'delivered', label: 'Livrée', icon: 'check-all' }
+    { status: 'en_attente', label: 'Commande créée', icon: 'check-circle' },
+    { status: 'acceptee', label: 'Acceptée', icon: 'check-circle' },
+    { status: 'en_livraison', label: 'En livraison', icon: 'truck' },
+    { status: 'livree', label: 'Livrée', icon: 'check-all' }
   ]
 
   if (isLoading) {

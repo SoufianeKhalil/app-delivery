@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import AdminLayout from '../components/AdminLayout'
 import api from '../utils/api'
 
 const statCards = [
@@ -57,16 +56,14 @@ export default function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <AdminLayout>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
-          <div>Chargement...</div>
-        </div>
-      </AdminLayout>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+        <div>Chargement...</div>
+      </div>
     )
   }
 
   return (
-    <AdminLayout>
+    <>
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>
           Tableau de bord
@@ -92,6 +89,6 @@ export default function AdminDashboard() {
           />
         ))}
       </div>
-    </AdminLayout>
+    </>
   )
 }

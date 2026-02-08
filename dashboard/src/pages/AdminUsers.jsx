@@ -95,16 +95,16 @@ export default function AdminUsers() {
 
   if (isLoading) {
     return (
-      <AdminLayout>
+      <>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
           Chargement...
         </div>
-      </AdminLayout>
+      </>
     )
   }
 
   return (
-    <AdminLayout>
+    <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#0f172a', marginBottom: '4px' }}>
@@ -281,7 +281,7 @@ export default function AdminUsers() {
           </div>
         </Modal>
       )}
-    </AdminLayout>
+    </>
   )
 }
 

@@ -87,11 +87,12 @@ router.get('/categories/all', async (req, res) => {
   }
 });
 
-// Get all products (public endpoint)
 router.get('/', async (req, res) => {
   try {
     const { search, category, limit = 50, offset = 0 } = req.query;
+    console.log('Get products with search:', search, 'category:', category);
 
+    // --- 1. MAIN QUERY ---
     let query = `
       SELECT p.*, c.nom as categorie_nom, m.nom as merchant_nom
       FROM produits p
@@ -107,7 +108,9 @@ router.get('/', async (req, res) => {
     }
 
     if (category) {
-      query += ' AND p.categorie_id = ?';
+      // FIX: Filter by the JOINED column (c.nom) instead of the ID (p.categorie_id)
+      // We use LIKE to make it case-insensitive (handles "boulangerie" vs "Boulangerie")
+      query += ' AND c.nom LIKE ?'; 
       params.push(category);
     }
 
@@ -116,17 +119,24 @@ router.get('/', async (req, res) => {
 
     const [products] = await pool.execute(query, params);
 
-    // Get total count for pagination
-    let countQuery = 'SELECT COUNT(*) as total FROM produits WHERE 1=1';
+    // --- 2. COUNT QUERY ---
+    // FIX: We must add the JOIN here too, otherwise we can't filter by category name
+    let countQuery = `
+      SELECT COUNT(*) as total 
+      FROM produits p
+      LEFT JOIN categories c ON p.categorie_id = c.id
+      WHERE 1=1
+    `;
     const countParams = [];
 
     if (search) {
-      countQuery += ' AND (nom LIKE ? OR description LIKE ?)';
+      countQuery += ' AND (p.nom LIKE ? OR p.description LIKE ?)';
       countParams.push(`%${search}%`, `%${search}%`);
     }
 
     if (category) {
-      countQuery += ' AND categorie_id = ?';
+      // FIX: Use the same logic as the main query
+      countQuery += ' AND c.nom LIKE ?';
       countParams.push(category);
     }
 
@@ -147,7 +157,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ success: false, message: 'Erreur lors de la récupération des produits' });
   }
 });
-
 // Get product by ID
 router.get('/:id', async (req, res) => {
   try {
