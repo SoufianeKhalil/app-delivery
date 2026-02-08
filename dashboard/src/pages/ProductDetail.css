@@ -1,0 +1,17 @@
+/* Product Detail Page */
+.product-detail-image {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.product-detail-image img {
+  max-width: 100%;
+  height: auto;
+}
+
+.badge {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.65rem;
+}

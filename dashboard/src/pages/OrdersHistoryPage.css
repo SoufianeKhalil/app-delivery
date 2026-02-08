@@ -1,0 +1,15 @@
+/* Orders History Page */
+.order-card {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+.order-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn-group .btn {
+  border-radius: 6px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}

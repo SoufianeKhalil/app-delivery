@@ -1,0 +1,22 @@
+/* Cart Page */
+.empty-cart {
+  padding: 60px 20px;
+}
+
+.empty-cart i {
+  color: #dee2e6;
+  margin-bottom: 20px;
+}
+
+.cart-item {
+  transition: all 0.2s ease;
+}
+
+.cart-item:hover {
+  background-color: #f8f9fa;
+}
+
+.cart-item img {
+  border-radius: 6px;
+  object-fit: cover;
+}

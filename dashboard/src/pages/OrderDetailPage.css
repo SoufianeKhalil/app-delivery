@@ -1,0 +1,71 @@
+/* Order Detail Page */
+.stat-box {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.timeline {
+  position: relative;
+  padding: 10px 0;
+}
+
+.timeline-item {
+  display: flex;
+  margin-bottom: 20px;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.timeline-item.completed {
+  opacity: 1;
+}
+
+.timeline-item.current {
+  opacity: 1;
+}
+
+.timeline-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #e9ecef;
+  border-radius: 50%;
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.timeline-item.completed .timeline-marker {
+  background-color: #28a745;
+  color: white;
+}
+
+.timeline-item.current .timeline-marker {
+  background-color: #0d6efd;
+  color: white;
+  transform: scale(1.1);
+}
+
+.timeline-content {
+  margin-left: 15px;
+  padding-top: 5px;
+}
+
+/* Vertical line between timeline items */
+.timeline-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  width: 2px;
+  height: 20px;
+  background-color: #e9ecef;
+}
+
+.timeline-item.completed:not(:last-child)::before {
+  background-color: #28a745;
+}
