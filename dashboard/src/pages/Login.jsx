@@ -15,7 +15,7 @@ function Login() {
     const result = await login({ email, mot_de_passe: password })
     setLoading(false)
     if (!result?.success) {
-      setError(result?.message || 'Email ou mot de passe incorrect. شغّل الـ backend: cd backend ثم node server.js')
+      setError(result?.message || 'Email ou mot de passe incorrect')
     }
   }
 
@@ -80,9 +80,6 @@ function Login() {
               }}
             />
           </div>
-          <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 16 }}>
-            Backend لازم يكون شغال: <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: 4 }}>cd backend && node server.js</code> (port 3000)
-          </p>
           <button
             type="submit"
             disabled={loading}

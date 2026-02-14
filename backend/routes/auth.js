@@ -15,6 +15,8 @@ router.post('/register', [
   body('role').isIn(['client', 'livreur', 'commercant']).withMessage('Rôle invalide')
 ], async (req, res) => {
   try {
+    // Log incoming payload to help debug mobile->backend issues
+    console.log('POST /api/auth/register payload:', req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ success: false, errors: errors.array() });

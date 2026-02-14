@@ -91,7 +91,7 @@ export default function App() {
           <Route path="/orders/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
           
           <Route path="/acces-refuse" element={<AccesRefuse />} />
-          <Route path="*" element={<Navigate to="/products" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       )}
       

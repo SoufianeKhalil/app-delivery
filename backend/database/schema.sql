@@ -155,7 +155,7 @@ INSERT INTO categories (nom, description) VALUES
 -- Insert default admin user (password: admin123)
 -- Password hash for 'admin123'
 INSERT INTO utilisateurs (nom, email, mot_de_passe, role, active) VALUES
-('Administrateur', 'admin@delivery.com', '$2a$10$rOzJqZqZqZqZqZqZqZqZqOqZqZqZqZqZqZqZqZqZqZqZqZqZqZq', 'admin', TRUE);
+('Administrateur', 'admin@admin.com', '$2a$10$rOzJqZqZqZqZqZqZqZqZqOqZqZqZqZqZqZqZqZqZqZqZqZqZqZq', 'admin', TRUE);
 
 -- Create indexes for better performance
 CREATE INDEX idx_utilisateurs_email ON utilisateurs(email);

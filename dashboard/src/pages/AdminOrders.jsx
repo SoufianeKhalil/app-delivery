@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
+import io from 'socket.io-client'
 
 const STATUS_OPTIONS = [
   { value: 'en_attente', label: 'En attente' },
@@ -23,6 +24,41 @@ const statusColors = {
 export default function AdminOrders() {
   const [statutFilter, setStatutFilter] = useState('')
   const queryClient = useQueryClient()
+
+  // Socket.io listener for real-time order updates
+  useEffect(() => {
+    const socket = io('http://localhost:3000', {
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5
+    })
+
+    // Listen for order acceptance updates
+    socket.on('order-accepted', (data) => {
+      console.log('Order accepted event received:', data)
+      // Invalidate and refetch orders to show updated status
+      queryClient.invalidateQueries(['admin-orders'])
+    })
+
+    // Listen for order cancellation updates
+    socket.on('order-cancelled', (data) => {
+      console.log('Order cancelled event received:', data)
+      // Invalidate and refetch orders to show updated status
+      queryClient.invalidateQueries(['admin-orders'])
+    })
+
+    // Listen for order refusal updates
+    socket.on('order-refused', (data) => {
+      console.log('Order refused event received:', data)
+      // Invalidate and refetch orders to show updated status
+      queryClient.invalidateQueries(['admin-orders'])
+    })
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [queryClient])
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['admin-orders', statutFilter],

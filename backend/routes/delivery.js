@@ -10,7 +10,8 @@ router.get('/available', authenticate, authorize('livreur'), async (req, res) =>
   try {
     const { lat, lng } = req.query;
 
-    // Get orders that are accepted by merchant but not yet assigned to a delivery person
+    // Get orders that have been accepted by merchant OR are waiting for merchant acceptance,
+    // and are not yet assigned to a delivery person
     const [orders] = await pool.execute(
       `SELECT c.*, 
               GROUP_CONCAT(CONCAT(p.nom, ' (x', cp.quantite, ')') SEPARATOR ', ') as produits,
@@ -19,7 +20,7 @@ router.get('/available', authenticate, authorize('livreur'), async (req, res) =>
               m.latitude as commercant_latitude,
               m.longitude as commercant_longitude,
               u.nom as client_nom,
-              u.adresse as client_adresse,
+              c.adresse_livraison as client_adresse,
               c.latitude_livraison as client_latitude,
               c.longitude_livraison as client_longitude
        FROM commandes c
@@ -27,7 +28,7 @@ router.get('/available', authenticate, authorize('livreur'), async (req, res) =>
        JOIN produits p ON cp.produit_id = p.id
        JOIN commercants m ON p.commercant_id = m.id
        JOIN utilisateurs u ON c.client_id = u.id
-       WHERE c.statut = 'acceptee' AND c.livreur_id IS NULL
+       WHERE (c.statut = 'acceptee' OR c.statut = 'en_attente') AND c.livreur_id IS NULL
        GROUP BY c.id
        ORDER BY c.date_commande ASC`
     );
@@ -63,10 +64,10 @@ router.post('/:id/accept', authenticate, authorize('livreur'), async (req, res) 
     const { id } = req.params;
     const livreurId = req.user.id;
 
-    // Check if order is available
+    // Check if order is available (either 'en_attente' or 'acceptee')
     const [orders] = await pool.execute(
-      'SELECT * FROM commandes WHERE id = ? AND statut = ? AND livreur_id IS NULL',
-      [id, 'acceptee']
+      'SELECT * FROM commandes WHERE id = ? AND (statut = ? OR statut = ?) AND livreur_id IS NULL',
+      [id, 'acceptee', 'en_attente']
     );
 
     if (orders.length === 0) {
@@ -84,6 +85,15 @@ router.post('/:id/accept', authenticate, authorize('livreur'), async (req, res) 
       'INSERT INTO notifications (utilisateur_id, message, type) VALUES (?, ?, ?)',
       [orders[0].client_id, `Votre commande #${id} est en cours de livraison`, 'livraison_en_cours']
     );
+
+    // Emit Socket.io event to update admin dashboard in real-time
+    const { getIO } = require('../utils/socket');
+    const io = getIO();
+    io.emit('order-accepted', {
+      orderId: id,
+      livreurId: livreurId,
+      statut: 'en_livraison'
+    });
 
     res.json({
       success: true,
@@ -110,7 +120,7 @@ router.get('/my-deliveries', authenticate, authorize('livreur'), async (req, res
              m.longitude as commercant_longitude,
              u.nom as client_nom,
              u.telephone as client_telephone,
-             u.adresse as client_adresse,
+             c.adresse_livraison as client_adresse,
              c.latitude_livraison as client_latitude,
              c.longitude_livraison as client_longitude
       FROM commandes c
@@ -277,6 +287,85 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 function deg2rad(deg) {
   return deg * (Math.PI / 180);
 }
+
+// Cancel delivery (livreur)
+router.post('/:id/cancel', authenticate, authorize('livreur'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const livreurId = req.user.id;
+
+    // Verify delivery ownership
+    const [orders] = await pool.execute(
+      'SELECT * FROM commandes WHERE id = ? AND livreur_id = ?',
+      [id, livreurId]
+    );
+
+    if (orders.length === 0) {
+      return res.status(404).json({ success: false, message: 'Livraison non trouvée' });
+    }
+
+    // Cancel the order
+    await pool.execute(
+      'UPDATE commandes SET statut = ?, livreur_id = NULL WHERE id = ?',
+      ['annulee', id]
+    );
+
+    // Emit Socket.io event to update admin dashboard in real-time
+    const { getIO } = require('../utils/socket');
+    const io = getIO();
+    io.emit('order-cancelled', {
+      orderId: id,
+      statut: 'annulee'
+    });
+
+    res.json({
+      success: true,
+      message: 'Commande annulée avec succès'
+    });
+  } catch (error) {
+    console.error('Cancel delivery error:', error);
+    res.status(500).json({ success: false, message: 'Erreur lors de l\'annulation de la commande' });
+  }
+});
+
+// Refuse delivery (livreur refuses before accepting)
+router.post('/:id/refuse', authenticate, authorize('livreur'), async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if order exists and is available
+    const [orders] = await pool.execute(
+      'SELECT * FROM commandes WHERE id = ? AND (statut = ? OR statut = ?) AND livreur_id IS NULL',
+      [id, 'acceptee', 'en_attente']
+    );
+
+    if (orders.length === 0) {
+      return res.status(404).json({ success: false, message: 'Commande non trouvée ou indisponible' });
+    }
+
+    // Cancel/refuse the order
+    await pool.execute(
+      'UPDATE commandes SET statut = ? WHERE id = ?',
+      ['annulee', id]
+    );
+
+    // Emit Socket.io event to update admin dashboard in real-time
+    const { getIO } = require('../utils/socket');
+    const io = getIO();
+    io.emit('order-refused', {
+      orderId: id,
+      statut: 'annulee'
+    });
+
+    res.json({
+      success: true,
+      message: 'Commande refusée'
+    });
+  } catch (error) {
+    console.error('Refuse delivery error:', error);
+    res.status(500).json({ success: false, message: 'Erreur lors du refus de la commande' });
+  }
+});
 
 module.exports = router;
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { ordersAPI, usersAPI } from '../utils/apiClient'
+import LocationPicker from '../components/LocationPicker'
 import toast from 'react-hot-toast'
 import './CheckoutPage.css'
 
@@ -20,8 +21,11 @@ export default function CheckoutPage() {
     adresse_livraison: '',
     adresse_detail: '',
     telephone: '',
-    notes: ''
+    notes: '',
+    latitude: null,
+    longitude: null
   })
+  const [locationLoading, setLocationLoading] = useState(false)
 
   // Load user addresses on mount
   useEffect(() => {
@@ -60,6 +64,17 @@ export default function CheckoutPage() {
     }))
   }
 
+  const handleLocationSelect = (location) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      adresse_livraison: location.address || `Position: ${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`
+    }))
+    setSelectedAddress(null)
+    setShowNewAddress(true)
+  }
+
   const handleSubmitOrder = async (e) => {
     e.preventDefault()
     setIsLoading(true)
@@ -84,7 +99,9 @@ export default function CheckoutPage() {
         adresse_detail: formData.adresse_detail,
         methode_paiement: paymentMethod,
         notes: formData.notes,
-        telephone: formData.telephone
+        telephone: formData.telephone,
+        latitude: formData.latitude,
+        longitude: formData.longitude
       }
 
       // Submit order
@@ -127,7 +144,7 @@ export default function CheckoutPage() {
           <form onSubmit={handleSubmitOrder}>
             {/* Delivery Address Section */}
             <div className="card shadow-sm border-0 mb-4">
-              <div className="card-header bg-light border-0">
+              <div className="card-header bg-light border-0 d-flex justify-content-between align-items-center">
                 <h5 className="mb-0">
                   <i className="bi bi-geo-alt"></i> Adresse de livraison
                 </h5>
@@ -163,6 +180,11 @@ export default function CheckoutPage() {
                   </>
                 ) : (
                   <>
+                    <LocationPicker 
+                      onLocationSelect={handleLocationSelect}
+                      initialLat={formData.latitude || 36.8}
+                      initialLng={formData.longitude || 10.2}
+                    />
                     <div className="mb-3">
                       <label className="form-label">Adresse principale *</label>
                       <input
@@ -194,6 +216,15 @@ export default function CheckoutPage() {
                       >
                         Utiliser une adresse existante
                       </button>
+                    )}
+                    {formData.latitude && formData.longitude && (
+                      <div className="mt-3 p-3 bg-light rounded">
+                        <small className="text-muted d-block mb-2">📍 Coordonnées GPS</small>
+                        <small className="text-muted d-block">
+                          Latitude: {formData.latitude.toFixed(6)}<br />
+                          Longitude: {formData.longitude.toFixed(6)}
+                        </small>
+                      </div>
                     )}
                   </>
                 )}

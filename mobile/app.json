@@ -9,7 +9,12 @@
       "resizeMode": "contain",
       "backgroundColor": "#3b82f6"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "updates": {
+      "enabled": false
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.delivery.app"
@@ -19,7 +24,10 @@
         "backgroundColor": "#3b82f6"
       },
       "package": "com.delivery.app",
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
     "web": {},
     "plugins": [
@@ -28,7 +36,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Cette application a besoin d'accéder à votre localisation pour le suivi des livraisons."
         }
-      ]
+      ],
+      "expo-asset"
     ]
   }
 }

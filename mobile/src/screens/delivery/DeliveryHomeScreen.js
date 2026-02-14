@@ -72,26 +72,95 @@ export default function DeliveryHomeScreen() {
     }
   };
 
+  const refuseDelivery = async (orderId) => {
+    Alert.alert(
+      'Refuser la commande',
+      'Êtes-vous sûr de vouloir refuser cette commande ?',
+      [
+        { text: 'Non', onPress: () => {}, style: 'cancel' },
+        {
+          text: 'Oui, refuser',
+          onPress: async () => {
+            try {
+              const response = await api.post(`/delivery/${orderId}/refuse`);
+              if (response.data.success) {
+                Alert.alert('Succès', 'Commande refusée');
+                loadAvailableOrders(location?.latitude, location?.longitude);
+              }
+            } catch (error) {
+              Alert.alert('Erreur', error.response?.data?.message || 'Erreur lors du refus');
+            }
+          },
+          style: 'destructive'
+        }
+      ]
+    );
+  };
+
+  const openDeliveryMap = (order) => {
+    navigation.navigate('DeliveryMap', {
+      orderId: order.id,
+      clientLat: parseFloat(order.client_latitude),
+      clientLng: parseFloat(order.client_longitude),
+      clientName: order.client_nom,
+      clientAddress: order.client_adresse,
+    });
+  };
+
   const renderOrder = ({ item }) => (
+    <TouchableOpacity onPress={() => openDeliveryMap(item)}>
     <View style={styles.orderCard}>
+      {/* Header with Order Number and Distance */}
       <View style={styles.orderHeader}>
         <Text style={styles.orderId}>Commande #{item.id}</Text>
         {item.distance && (
           <Text style={styles.distance}>{item.distance.toFixed(1)} km</Text>
         )}
       </View>
-      <Text style={styles.orderProducts}>{item.produits}</Text>
-      <Text style={styles.orderTotal}>{item.montant_total} MAD</Text>
-      <Text style={styles.merchantAddress}>
-        📍 {item.commercant_adresse}
-      </Text>
-      <TouchableOpacity
-        style={styles.acceptButton}
-        onPress={() => acceptDelivery(item.id)}
-      >
-        <Text style={styles.acceptButtonText}>Accepter la livraison</Text>
-      </TouchableOpacity>
+
+      {/* Products */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Produits</Text>
+        <Text style={styles.orderProducts}>{item.produits}</Text>
+      </View>
+
+      {/* Total */}
+      <View style={styles.totalSection}>
+        <Text style={styles.orderTotal}>{item.montant_total} DT</Text>
+      </View>
+
+      {/* Merchant Info */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>À chercher chez</Text>
+        <Text style={styles.infoText}>🏪 {item.commercant_nom}</Text>
+        <Text style={styles.infoText}>📍 {item.commercant_adresse}</Text>
+      </View>
+
+      {/* Client Info */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>À livrer à</Text>
+        <Text style={styles.infoText}>👤 {item.client_nom}</Text>
+        <Text style={styles.infoText}>📱 {item.telephone || 'N/A'}</Text>
+        <Text style={styles.infoText}>📍 {item.client_adresse || 'Adresse à définir'}</Text>
+      </View>
+
+      {/* Action Buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.acceptButton, { flex: 1, marginRight: 8 }]}
+          onPress={() => acceptDelivery(item.id)}
+        >
+          <Text style={styles.acceptButtonText}>✓ Accepter</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.refuseButton, { flex: 1 }]}
+          onPress={() => refuseDelivery(item.id)}
+        >
+          <Text style={styles.refuseButtonText}>✕ Refuser</Text>
+        </TouchableOpacity>
+      </View>
     </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -166,21 +235,42 @@ const styles = StyleSheet.create({
     color: '#3b82f6',
     fontWeight: '600',
   },
-  orderProducts: {
+  section: {
+    marginVertical: 8,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  infoText: {
     fontSize: 14,
+    color: '#4b5563',
+    marginVertical: 3,
+    lineHeight: 20,
+  },
+  orderProducts: {
+    fontSize: 13,
     color: '#6b7280',
-    marginBottom: 8,
+    lineHeight: 18,
+  },
+  totalSection: {
+    backgroundColor: '#f0f9ff',
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+    alignItems: 'center',
   },
   orderTotal: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#3b82f6',
-    marginBottom: 8,
-  },
-  merchantAddress: {
-    fontSize: 12,
-    color: '#6b7280',
-    marginBottom: 12,
+    color: '#0284c7',
   },
   acceptButton: {
     backgroundColor: '#10b981',
@@ -189,6 +279,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   acceptButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  refuseButton: {
+    backgroundColor: '#ef4444',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  refuseButtonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: '600',

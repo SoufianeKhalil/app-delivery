@@ -18,6 +18,7 @@ import DeliveryHomeScreen from './src/screens/delivery/DeliveryHomeScreen';
 import DeliveryOrdersScreen from './src/screens/delivery/DeliveryOrdersScreen';
 import DeliveryTrackingScreen from './src/screens/delivery/DeliveryTrackingScreen';
 import DeliveryProfileScreen from './src/screens/delivery/DeliveryProfileScreen';
+import DeliveryMapScreen from './src/screens/delivery/DeliveryMapScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -108,6 +109,7 @@ function AppNavigator() {
           <>
             <Stack.Screen name="DeliveryTabs" component={DeliveryTabs} />
             <Stack.Screen name="DeliveryTracking" component={DeliveryTrackingScreen} />
+            <Stack.Screen name="DeliveryMap" component={DeliveryMapScreen} />
           </>
         ) : null}
       </Stack.Navigator>

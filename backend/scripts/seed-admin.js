@@ -2,13 +2,13 @@
  * Crée ou met à jour le compte admin pour se connecter au dashboard.
  * Lancer depuis le dossier backend: node scripts/seed-admin.js
  *
- * Connexion: admin@delivery.com / admin123
+ * Connexion: admin@admin.com / admin123
  */
 
 const bcrypt = require('bcryptjs');
 const pool = require('../config/database');
 
-const ADMIN_EMAIL = 'admin@delivery.com';
+const ADMIN_EMAIL = 'admin@admin.com';
 const ADMIN_PASSWORD = 'admin123';
 const ADMIN_NAME = 'Administrateur';
 

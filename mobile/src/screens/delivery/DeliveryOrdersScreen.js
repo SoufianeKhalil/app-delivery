@@ -49,6 +49,31 @@ export default function DeliveryOrdersScreen() {
     }
   };
 
+  const cancelDelivery = async (orderId) => {
+    Alert.alert(
+      'Annuler la commande',
+      'Êtes-vous sûr de vouloir annuler cette commande ?',
+      [
+        { text: 'Non', onPress: () => {}, style: 'cancel' },
+        {
+          text: 'Oui, annuler',
+          onPress: async () => {
+            try {
+              const response = await api.post(`/delivery/${orderId}/cancel`);
+              if (response.data.success) {
+                Alert.alert('Succès', 'Commande annulée');
+                loadDeliveries();
+              }
+            } catch (error) {
+              Alert.alert('Erreur', error.response?.data?.message || 'Erreur lors de l\'annulation');
+            }
+          },
+          style: 'destructive'
+        }
+      ]
+    );
+  };
+
   const getStatusColor = (status) => {
     const colors = {
       'en_livraison': '#8b5cf6',
@@ -86,6 +111,12 @@ export default function DeliveryOrdersScreen() {
             onPress={() => updateStatus(item.id, 'livree')}
           >
             <Text style={styles.completeButtonText}>Marquer comme livrée</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => cancelDelivery(item.id)}
+          >
+            <Text style={styles.cancelButtonText}>Annuler la commande</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -182,6 +213,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   completeButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  cancelButton: {
+    backgroundColor: '#ef4444',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
     color: 'white',
     fontSize: 14,
     fontWeight: '600',

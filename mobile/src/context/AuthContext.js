@@ -32,21 +32,33 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
+      console.log('🔐 Tentative de connexion...', { email });
       const response = await api.post('/auth/login', {
         email,
         mot_de_passe: password
       });
       
       if (response.data.success) {
+        console.log('✅ Connexion réussie!', response.data.user);
         await AsyncStorage.setItem('token', response.data.token);
         setUser(response.data.user);
         return { success: true };
       }
-      return { success: false, message: 'Erreur de connexion' };
+      console.log('❌ Réponse du serveur:', response.data);
+      return { success: false, message: response.data.message || 'Erreur de connexion' };
     } catch (error) {
+      console.log('❌ Erreur de connexion:', error.message);
+      if (error.code === 'ECONNABORTED') {
+        console.log('   → Timeout réseau');
+        return { success: false, message: 'Connexion timeout - vérifiez votre réseau et l\'IP du serveur' };
+      }
+      if (error.code === 'ENOTFOUND' || error.message?.includes('getaddrinfo')) {
+        console.log('   → Serveur non accessible');
+        return { success: false, message: 'Serveur non accessible - vérifiez l\'IP et la connexion Wi-Fi' };
+      }
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Erreur de connexion' 
+        message: error.response?.data?.message || error.message || 'Erreur de connexion' 
       };
     }
   };
@@ -60,11 +72,16 @@ export function AuthProvider({ children }) {
         setUser(response.data.user);
         return { success: true };
       }
-      return { success: false, message: 'Erreur d\'inscription' };
+      // If backend returns validation errors, include them
+      const serverMessage = response.data.message || (response.data.errors && response.data.errors.map(e => e.msg).join(' - '));
+      return { success: false, message: serverMessage || 'Erreur d\'inscription' };
     } catch (error) {
+      // If server returned an array of validation errors, join them
+      const resp = error.response?.data;
+      const serverMessage = resp?.message || (resp?.errors && resp.errors.map(e => e.msg).join(' - '));
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Erreur d\'inscription' 
+        message: serverMessage || 'Erreur d\'inscription' 
       };
     }
   };
